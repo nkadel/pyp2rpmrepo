@@ -1,0 +1,15 @@
+[pyprepo]
+name=Pyp repo - $basearch
+baseurl=file://@REPOBASEDIR@/pyprepo/@RELEASEDIR@/$releasever/$basearch
+enabled=0
+gpgcheck=0
+metadata_expire=1
+priority=5
+
+[pyprepo-source]
+name=Pyp repo - Source
+baseurl=file://@REPOBASEDIR@/pyprepo/@RELEASEDIR@/$releasever/SRPMS/
+enabled=0
+gpgcheck=0
+metadata_expire=1
+priority=5

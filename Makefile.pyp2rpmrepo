@@ -13,13 +13,13 @@ RSYNCOPTS=-a --no-owner --no-group
 # "mock" configurations to build with, activate only as needed
 # Some RHEL dependencies are supplied locally in repo
 # Disabled, RHEL 6 is now obsolete
-MOCKS+=pyprepo-8-x86_64
-MOCKS+=pyprepo-9-x86_64
+MOCKS+=pyp2rpmrepo-8-x86_64
+MOCKS+=pyp2rpmrepo-9-x86_64
 
 MOCKCFGS+=$(MOCKS)
 
 # Local yum compatible RPM repository
-REPOBASEDIR="`/bin/pwd | xargs dirname`/pyprepo"
+REPOBASEDIR="`/bin/pwd | xargs dirname`/pyp2rpmrepo"
 
 # Deduce local package names and .spec files, for universe Makefile use
 SPEC := `ls *.spec | head -1`

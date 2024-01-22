@@ -1,1 +1,1 @@
-../Makefile.pyp
+../Makefile.pyp2rpmrepo

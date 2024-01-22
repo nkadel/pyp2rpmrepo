@@ -15,11 +15,11 @@ RSYNCOPTS=-a --no-owner --no-group
 #MOCKS+=centos-stream+epel-8-x86_64
 MOCKS+=centos-stream+epel-9-x86_64
 
-#MOCKCFGS+=pyprepo-8-x86_64
-MOCKCFGS+=pyprepo-9-x86_64
+#MOCKCFGS+=pyp2rpmrepo-8-x86_64
+MOCKCFGS+=pyp2rpmrepo-9-x86_64
 
 # Local yum compatible RPM repository
-REPOBASEDIR="`/bin/pwd | xargs dirname`/pyprepo"
+REPOBASEDIR="`/bin/pwd | xargs dirname`/pyp2rpmrepo"
 
 # Deduce local package names and .spec files, for universe Makefile use
 SPEC := `ls *.spec | head -1`

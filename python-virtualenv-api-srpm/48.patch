@@ -1,0 +1,40 @@
+From ea12a215d28b53cff40838c5fa1c9cea4e5f3951 Mon Sep 17 00:00:00 2001
+From: Martynov Maxim <martinov_m_s_@mail.ru>
+Date: Thu, 13 May 2021 23:15:55 +0300
+Subject: [PATCH] Remove search test cases
+
+---
+ tests.py | 20 --------------------
+ 1 file changed, 20 deletions(-)
+
+diff --git a/tests.py b/tests.py
+index 09a60ca..8b46553 100644
+--- a/tests.py
++++ b/tests.py
+@@ -96,26 +96,6 @@ def test_wheel(self):
+             self.assertTrue(self.virtual_env_obj.is_installed(pack))
+ 
+ 
+-class SearchTestCase(TestBase):
+-    """
+-    Test pip search.
+-    """
+-
+-    def test_search(self):
+-        for pack in all_packages_for_tests:
+-            result = self.virtual_env_obj.search(pack)
+-            self.assertIsInstance(result, dict)
+-            self.assertTrue(bool(result))
+-            if result:
+-                self.assertIn(pack.lower(), [k.split(' (')[0].lower() for k in result.keys()])
+-
+-    def test_search_names(self):
+-        for pack in all_packages_for_tests:
+-            result = self.virtual_env_obj.search_names(pack)
+-            self.assertIsInstance(result, list)
+-            self.assertIn(pack.lower(), [k.split(' (')[0].lower() for k in result])
+-
+-
+ class PythonArgumentTestCase(TestBase):
+     """
+     Test passing a different interpreter path to `VirtualEnvironment` (`virtualenv -p`).

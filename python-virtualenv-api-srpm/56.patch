@@ -1,0 +1,31 @@
+From b8d3a9e80067eb6925edbc07af677c2fc56823a9 Mon Sep 17 00:00:00 2001
+From: "Benjamin A. Beasley" <code@musicinmybrain.net>
+Date: Mon, 2 Jan 2023 10:34:15 -0500
+Subject: [PATCH] Always use the current interpreter for test_python_version
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Instead of searching the PATH for “python,” use sys.executable to get
+the Python interpreter parameter for the virtual environment in this
+test. This keeps the test from failing in environments where there is no
+“python” on the PATH, e.g. on Fedora Linux where only “python3” is
+present in the RPM build environment (without the
+python-unversioned-command package).
+---
+ tests.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/tests.py b/tests.py
+index 09a60ca..840f4e6 100644
+--- a/tests.py
++++ b/tests.py
+@@ -123,7 +123,7 @@ class PythonArgumentTestCase(TestBase):
+ 
+     def setUp(self):
+         self.env_path = tempfile.mkdtemp()
+-        self.python = which('python')
++        self.python = sys.executable
+         self.assertIsNotNone(self.python)
+         self.virtual_env_obj = VirtualEnvironment(self.env_path, python=self.python)
+ 

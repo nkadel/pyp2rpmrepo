@@ -1,0 +1,145 @@
+From 91aa7dc4add2e3abbab85067e934b8594424a667 Mon Sep 17 00:00:00 2001
+From: Martynov Maxim <martinov_m_s_@mail.ru>
+Date: Fri, 14 May 2021 01:07:34 +0300
+Subject: [PATCH] Fix `--system-site-packages` tests
+
+Add few new methods: `is_accessible`, `all_packages`, `all_package_names`
+---
+ tests.py                | 59 +++++++++++++++++++++++++----------------
+ virtualenvapi/manage.py | 31 ++++++++++++++++++++++
+ 2 files changed, 67 insertions(+), 23 deletions(-)
+
+diff --git a/tests.py b/tests.py
+index 09a60ca..f5e8bcb 100644
+--- a/tests.py
++++ b/tests.py
+@@ -149,13 +149,6 @@ def setUp(self):
+         snapshot system package list
+         """
+         self.dir = tempfile.mkdtemp()
+-        self.no_global = (
+-            "lib/python{}.{}"
+-            "/no-global-site-packages.txt"
+-        ).format(
+-            sys.version_info.major,
+-            sys.version_info.minor
+-        )
+ 
+     def tearDown(self):
+         if os.path.exists(self.dir):
+@@ -164,30 +157,50 @@ def tearDown(self):
+     def test_system_site_packages(self):
+         """
+         test that creating a venv with system_site_packages=True
+-        results in a venv that does not contain the no-global-site-packages file
+-
++        results in a venv that does not have system packages installed
+         """
++
+         venv = VirtualEnvironment(self.dir, system_site_packages=True)
+-        venv._create()
+-        expected = os.path.join(venv.path, self.no_global)
+-        self.assertTrue(
+-            not os.path.exists(expected)
+-        )
++        venv.open_or_create()
++
++        # always installed and accessible
++        self.assertTrue(venv.is_installed("pip"))
++        self.assertTrue(venv.is_installed("wheel"))
++        self.assertTrue(venv.is_installed("setuptools"))
++        self.assertTrue(venv.is_accessible("pip"))
++        self.assertTrue(venv.is_accessible("wheel"))
++        self.assertTrue(venv.is_accessible("setuptools"))
++
++        # system packages are not listed with -l option
++        self.assertFalse(venv.is_installed("six"))
++        self.assertFalse(venv.is_installed("virtualenv"))
++
++        # but they are accessible
++        self.assertTrue(venv.is_accessible("six"))
++        self.assertTrue(venv.is_accessible("virtualenv"))
+ 
+     def test_no_system_site_packages(self):
+         """
+         test that creating a venv with system_site_packages=False
+-        results in a venv that contains the no-global-site-packages
+-        file
+-
++        results in a venv that does not have system packages installed
+         """
+-        venv = VirtualEnvironment(self.dir)
+-        venv._create()
+-        expected = os.path.join(venv.path, self.no_global)
+-        self.assertTrue(
+-            os.path.exists(expected)
+-        )
+ 
++        venv = VirtualEnvironment(self.dir)
++        venv.open_or_create()
++
++        # always installed and accessible
++        self.assertTrue(venv.is_installed("pip"))
++        self.assertTrue(venv.is_installed("wheel"))
++        self.assertTrue(venv.is_installed("setuptools"))
++        self.assertTrue(venv.is_accessible("pip"))
++        self.assertTrue(venv.is_accessible("wheel"))
++        self.assertTrue(venv.is_accessible("setuptools"))
++
++        # system packages are not accessible
++        self.assertFalse(venv.is_installed("six"))
++        self.assertFalse(venv.is_installed("virtualenv"))
++        self.assertFalse(venv.is_accessible("six"))
++        self.assertFalse(venv.is_accessible("virtualenv"))
+ 
+ if __name__ == '__main__':
+     unittest.main()
+diff --git a/virtualenvapi/manage.py b/virtualenvapi/manage.py
+index 59e04e4..8281198 100644
+--- a/virtualenvapi/manage.py
++++ b/virtualenvapi/manage.py
+@@ -283,6 +283,21 @@ def is_installed(self, package):
+         else:
+             return pkg_tuple[0].lower() in self.installed_package_names
+ 
++    def is_accessible(self, package):
++        """Returns True if the given package (given in pip's package syntax or a
++        tuple of ('name', 'ver')) is accessible in the virtual environment."""
++        if isinstance(package, tuple):
++            package = '=='.join(package)
++        if package.endswith('.git'):
++            pkg_name = os.path.split(package)[1][:-4]
++            return pkg_name in self.all_package_names or \
++                    pkg_name.replace('_', '-') in self.all_package_names
++        pkg_tuple = split_package_name(package)
++        if pkg_tuple[1] is not None:
++            return pkg_tuple in self.all_packages
++        else:
++            return pkg_tuple[0].lower() in self.all_package_names
++
+     def upgrade(self, package, force=False):
+         """Shortcut method to upgrade a package. If `force` is set to True,
+         the package and all of its dependencies will be reinstalled, otherwise
+@@ -333,6 +348,22 @@ def installed_packages(self):
+                 ['freeze'] + freeze_options).split(linesep))))
+ 
+     @property
++    def all_packages(self):
++        """
++        List of all packages accessible in this environment in
++        the format [(name, ver), ..].
++        """
++
++        freeze_options = ['--all'] if self.pip_version >= (8, 1, 0) else []
++        return list(map(split_package_name, filter(None, self._execute_pip(
++                ['freeze'] + freeze_options).split(linesep))))
++    @property
+     def installed_package_names(self):
+         """List of all package names that are installed in this environment."""
+         return [name.lower() for name, _ in self.installed_packages]
++
++    @property
++    def all_package_names(self):
++        """List of all package names that are accessible in this environment."""
++
++        return [name.lower() for name, _ in self.all_packages]

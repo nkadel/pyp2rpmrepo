@@ -9,13 +9,13 @@ Building pyp2rpm
 Ideally, install "mock" and use that to build for both RHEL 6 and RHEL
 
 * make cfgs # Create local .cfg configs for "mock".
-* * centos-stream+epel-8-x86_64.cfg
-* * centos-stream+epel-9-x86_64.cfg
-# # pyp2rpmrepo-8-x86_64.cfg
-# # pyp2rpmrepo-9-x86_64.cfg
+    * centos-stream+epel-8-x86_64.cfg
+    * centos-stream+epel-9-x86_64.cfg
+    * pyp2rpmrepo-8-x86_64.cfg
+    * pyp2rpmrepo-9-x86_64.cfg
 
 * make repos # Creates local local yum repositories in $PWD/pyp2rpmrepo
-* * pyp2rpmrepo/el/7
+    * pyp2rpmrepo/el/7
 
 * make # Make all distinct versions using "mock"
 

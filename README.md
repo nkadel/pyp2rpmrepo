@@ -15,7 +15,12 @@ Ideally, install "mock" and use that to build for both RHEL 6 and RHEL
     * pyp2rpmrepo-9-x86_64.cfg
 
 * make repos # Creates local local yum repositories in $PWD/pyp2rpmrepo
-    * pyp2rpmrepo/el/7
+    * pyp2rpmrepo/el/8
+        * pyp2rpmrepo/el/8/x86_64
+        * pyp2rpmrepo/el/8/SRPM
+    * pyp2rpmrepo/el/9
+        * pyp2rpmrepo/el/9/x86_64
+        * pyp2rpmrepo/el/9/SRPM
 
 * make # Make all distinct versions using "mock"
 

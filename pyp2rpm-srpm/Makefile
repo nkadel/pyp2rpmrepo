@@ -1,1 +1,1 @@
-../Makefile.pyp9
+../Makefile.pyp2rpmrepo9
